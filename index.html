@@ -41,7 +41,40 @@
             border-color: rgba(148, 163, 184, 0.2);
         }
 
-        /* Logo Animation - Brighter Sun */
+        .glass-card.active {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Town Card Specific */
+        .town-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 280px;
+        }
+        .town-card:hover {
+            background: rgba(51, 65, 85, 0.5);
+            transform: translateY(-3px);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+        .town-card.active {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: #06B6D4;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Suburb Tag */
+        .suburb-tag {
+            background: rgba(6, 182, 212, 0.2);
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            color: #22D3EE;
+            font-weight: 600;
+        }
+
+        /* Logo Animation - ONLY THIS ANIMATES */
         .sun-logo {
             display: inline-block;
             animation: spin 20s linear infinite;
@@ -50,36 +83,14 @@
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Weather Animations */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        /* Background decorative elements - subtle pulse only */
+        .bg-glow {
+            animation: subtle-pulse 8s ease-in-out infinite;
         }
-        .animate-float { animation: float 4s ease-in-out infinite; }
-
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6)); }
-            50% { opacity: 0.9; filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.9)); }
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.15; transform: scale(1.05); }
         }
-        .animate-pulse-glow { animation: pulse-glow 3s infinite; }
-
-        /* Rain Animation */
-        @keyframes rain-drop {
-            0% { transform: translateY(-10px); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(20px); opacity: 0; }
-        }
-        .rain-anim { animation: rain-drop 1s linear infinite; }
-
-        /* Lightning Animation */
-        @keyframes flash {
-            0%, 90%, 100% { opacity: 0; }
-            92%, 96% { opacity: 1; }
-            94% { opacity: 0; }
-        }
-        .lightning-anim { animation: flash 3s infinite; }
 
         /* Custom Scrollbar - Dark */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -98,15 +109,23 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        /* Scroll snap for towns */
+        .snap-x-mandatory {
+            scroll-snap-type: x mandatory;
+        }
+        .snap-center {
+            scroll-snap-align: center;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col relative transition-all duration-1000 ease-in-out bg-clear-night" id="app-body">
 
-    <!-- Background Elements -->
+    <!-- Background Elements - Static with subtle pulse -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-float"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-3xl animate-float" style="animation-delay: 2s;"></div>
-        <div class="absolute top-[40%] left-[60%] w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-float" style="animation-delay: 4s;"></div>
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-500/10 rounded-full blur-3xl bg-glow"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-3xl bg-glow" style="animation-delay: 2s;"></div>
+        <div class="absolute top-[40%] left-[60%] w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl bg-glow" style="animation-delay: 4s;"></div>
     </div>
 
     <!-- Header -->
@@ -119,12 +138,12 @@
             </div>
         </div>
         
-        <!-- MioConnect Logo -->
+        <!-- MioConnect Logo - ONLY ANIMATED ELEMENT -->
         <div class="flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-full backdrop-blur-md border border-slate-700/50">
             <span class="text-sm font-semibold tracking-wide text-slate-300">Presented by</span>
             <div class="text-xl font-bold flex items-center text-white">
                 Mi<span class="sun-logo text-2xl mx-[1px]">
-                    <!-- Sun Icon SVG -->
+                    <!-- Sun Icon SVG - ONLY THIS SPINS -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                         <circle cx="12" cy="12" r="5" fill="#FBBF24"/>
                         <g stroke="#FBBF24" stroke-width="2" stroke-linecap="round">
@@ -143,6 +162,28 @@
         </div>
     </header>
 
+    <!-- Towns Navigation Section -->
+    <section class="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-8 mt-6">
+        <div class="glass-panel rounded-3xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <!-- Static location icon -->
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Select Location
+                </h3>
+                <span class="text-sm text-cyan-400 font-medium" id="current-location-display">Klerksdorp (Jouberton)</span>
+            </div>
+            
+            <!-- Towns Scroll Container -->
+            <div class="flex overflow-x-auto gap-4 pb-4 snap-x-mandatory" id="towns-container">
+                <!-- Towns injected via JS -->
+            </div>
+        </div>
+    </section>
+
     <!-- Main Content -->
     <main class="relative z-10 flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
         
@@ -155,15 +196,16 @@
                 <div class="mb-2 px-3 py-1 rounded-full bg-slate-800/80 text-xs font-medium uppercase tracking-wider text-cyan-400 border border-slate-700" id="current-date">Loading...</div>
                 
                 <div class="my-6 relative">
-                    <!-- Dynamic Icon Container -->
-                    <div id="weather-icon-container" class="w-40 h-40 animate-float drop-shadow-2xl">
-                        <!-- SVG Injected via JS -->
+                    <!-- Static Weather Icon -->
+                    <div id="weather-icon-container" class="w-40 h-40 drop-shadow-2xl">
+                        <!-- SVG Injected via JS - NO ANIMATION -->
                     </div>
                 </div>
 
                 <div class="relative z-10">
                     <h2 class="text-8xl font-bold tracking-tighter text-gradient" id="current-temp">--°</h2>
                     <p class="text-2xl font-medium mt-2 capitalize text-slate-300" id="weather-desc">Loading Data...</p>
+                    <p class="text-sm text-cyan-400 mt-1 font-medium" id="location-name">Klerksdorp (Jouberton)</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 w-full mt-8 pt-8 border-t border-slate-700/50">
@@ -249,10 +291,48 @@
     </footer>
 
     <script>
+        // --- KOSH Area Towns Data ---
+        const koshTowns = [
+            {
+                id: 'klerksdorp',
+                name: 'Klerksdorp',
+                suburb: 'Jouberton',
+                displayName: 'Klerksdorp (Jouberton)',
+                tempOffset: 0,
+                condition: 'sunny'
+            },
+            {
+                id: 'orkney',
+                name: 'Orkney',
+                suburb: 'Kanana',
+                displayName: 'Orkney (Kanana)',
+                tempOffset: 1,
+                condition: 'cloudy'
+            },
+            {
+                id: 'stilfontein',
+                name: 'Stilfontein',
+                suburb: 'Khuma',
+                displayName: 'Stilfontein (Khuma)',
+                tempOffset: -1,
+                condition: 'sunny'
+            },
+            {
+                id: 'hartebeesfontein',
+                name: 'Hartebeesfontein',
+                suburb: 'Tigane',
+                displayName: 'Hartebeesfontein (Tigane)',
+                tempOffset: -2,
+                condition: 'cloudy'
+            }
+        ];
+
+        let currentTown = koshTowns[0];
+
         // --- Configuration & State ---
         const appBody = document.getElementById('app-body');
 
-        // --- SVG Icons - All properly sized and visible ---
+        // --- STATIC SVG Icons - NO ANIMATIONS ---
         const icons = {
             sunny: `
                 <svg viewBox="0 0 64 64" class="w-full h-full">
@@ -262,16 +342,17 @@
                             <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
                         </radialGradient>
                     </defs>
-                    <circle cx="32" cy="32" r="12" fill="url(#sunGradient)" class="animate-pulse-glow"/>
+                    <!-- Static sun - no spin animation -->
+                    <circle cx="32" cy="32" r="12" fill="url(#sunGradient)"/>
                     <g stroke="#FCD34D" stroke-width="3" stroke-linecap="round">
-                        <line x1="32" y1="4" x2="32" y2="12" class="animate-[spin_10s_linear_infinite]"/>
-                        <line x1="32" y1="52" x2="32" y2="60" class="animate-[spin_10s_linear_infinite]"/>
-                        <line x1="4" y1="32" x2="12" y2="32" class="animate-[spin_10s_linear_infinite]"/>
-                        <line x1="52" y1="32" x2="60" y2="32" class="animate-[spin_10s_linear_infinite]"/>
-                        <line x1="12.2" y1="12.2" x2="17.8" y2="17.8" class="animate-[spin_10s_linear_infinite]"/>
-                        <line x1="46.2" y1="46.2" x2="51.8" y2="51.8" class="animate-[spin_10s_linear_infinite]"/>
-                        <line x1="12.2" y1="51.8" x2="17.8" y2="46.2" class="animate-[spin_10s_linear_infinite]"/>
-                        <line x1="46.2" y1="17.8" x2="51.8" y2="12.2" class="animate-[spin_10s_linear_infinite]"/>
+                        <line x1="32" y1="4" x2="32" y2="12"/>
+                        <line x1="32" y1="52" x2="32" y2="60"/>
+                        <line x1="4" y1="32" x2="12" y2="32"/>
+                        <line x1="52" y1="32" x2="60" y2="32"/>
+                        <line x1="12.2" y1="12.2" x2="17.8" y2="17.8"/>
+                        <line x1="46.2" y1="46.2" x2="51.8" y2="51.8"/>
+                        <line x1="12.2" y1="51.8" x2="17.8" y2="46.2"/>
+                        <line x1="46.2" y1="17.8" x2="51.8" y2="12.2"/>
                     </g>
                 </svg>`,
             
@@ -283,8 +364,9 @@
                             <stop offset="100%" style="stop-color:#94A3B8;stop-opacity:0.9" />
                         </linearGradient>
                     </defs>
-                    <path fill="url(#cloudGradient)" d="M46 44a10 10 0 1 0-8-18 14 14 0 1 0-26 6h34z" class="animate-float"/>
-                    <circle cx="20" cy="24" r="8" fill="#FCD34D" opacity="0.5"/>
+                    <!-- Static cloud - no float animation -->
+                    <circle cx="20" cy="24" r="8" fill="#FCD34D" opacity="0.4"/>
+                    <path fill="url(#cloudGradient)" d="M46 44a10 10 0 1 0-8-18 14 14 0 1 0-26 6h34z"/>
                 </svg>`,
             
             rain: `
@@ -296,9 +378,10 @@
                         </linearGradient>
                     </defs>
                     <path fill="url(#rainCloudGradient)" d="M46 38a10 10 0 1 0-8-18 14 14 0 1 0-26 6h34z"/>
-                    <line x1="20" y1="44" x2="18" y2="52" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" class="rain-anim"/>
-                    <line x1="32" y1="44" x2="30" y2="52" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" class="rain-anim" style="animation-delay: 0.2s"/>
-                    <line x1="44" y1="44" x2="42" y2="52" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" class="rain-anim" style="animation-delay: 0.4s"/>
+                    <!-- Static rain drops - no animation -->
+                    <line x1="20" y1="44" x2="18" y2="52" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="32" y1="44" x2="30" y2="52" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="44" y1="44" x2="42" y2="52" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
                 </svg>`,
             
             storm: `
@@ -310,7 +393,8 @@
                         </linearGradient>
                     </defs>
                     <path fill="url(#stormCloudGradient)" d="M46 38a10 10 0 1 0-8-18 14 14 0 1 0-26 6h34z"/>
-                    <path d="M28 44L24 52H30L26 60L36 48H30L34 44H28Z" fill="#FCD34D" class="lightning-anim"/>
+                    <!-- Static lightning - no flash animation -->
+                    <path d="M28 44L24 52H30L26 60L36 48H30L34 44H28Z" fill="#FCD34D"/>
                 </svg>`,
             
             night: `
@@ -321,46 +405,85 @@
                             <stop offset="100%" style="stop-color:#FDE68A;stop-opacity:1" />
                         </linearGradient>
                     </defs>
-                    <path fill="url(#moonGradient)" d="M36 12a16 16 0 1 1-20 20 12 12 0 0 0 20-20z" class="animate-float"/>
+                    <!-- Static moon - no float animation -->
+                    <path fill="url(#moonGradient)" d="M36 12a16 16 0 1 1-20 20 12 12 0 0 0 20-20z"/>
                     <circle cx="50" cy="20" r="1" fill="white" opacity="0.8"/>
                     <circle cx="15" cy="45" r="1.5" fill="white" opacity="0.6"/>
                     <circle cx="55" cy="50" r="1" fill="white" opacity="0.7"/>
                 </svg>`
         };
 
+        // --- Render Towns Section ---
+        function renderTowns() {
+            const container = document.getElementById('towns-container');
+            container.innerHTML = '';
+
+            koshTowns.forEach(town => {
+                const townEl = document.createElement('div');
+                townEl.className = `town-card rounded-2xl p-5 snap-center ${town.id === currentTown.id ? 'active' : ''}`;
+                townEl.onclick = () => selectTown(town);
+
+                townEl.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h4 class="font-bold text-white text-xl">${town.name}</h4>
+                            <span class="suburb-tag px-3 py-1 rounded-full text-xs mt-1 inline-block">${town.suburb}</span>
+                        </div>
+                        <!-- Static weather icon -->
+                        <div class="w-12 h-12">${icons[town.condition]}</div>
+                    </div>
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-slate-700/50">
+                        <span class="text-slate-400 text-sm">Current</span>
+                        <span class="text-cyan-400 font-bold text-2xl">${generateTemp(town.tempOffset)}°</span>
+                    </div>
+                `;
+
+                container.appendChild(townEl);
+            });
+        }
+
+        function generateTemp(offset) {
+            const base = 22 + offset;
+            return Math.floor(base + Math.random() * 3);
+        }
+
+        function selectTown(town) {
+            currentTown = town;
+            document.getElementById('current-location-display').textContent = town.displayName;
+            document.getElementById('location-name').textContent = town.displayName;
+            renderTowns();
+            render();
+        }
+
         // --- Data Simulation ---
         function generateWeatherData() {
             const now = new Date();
             const currentHour = now.getHours();
             
-            const conditions = ['sunny', 'cloudy', 'rain', 'storm', 'night'];
-            const baseCondition = conditions[Math.floor(Math.random() * conditions.length)];
+            const baseCondition = currentTown.condition;
             
-            let tempBase = 18;
-            if (baseCondition === 'rain' || baseCondition === 'storm') tempBase = 15;
-            else if (baseCondition === 'night') tempBase = 12;
-            else if (baseCondition === 'sunny') tempBase = 24;
+            let tempBase = 22 + currentTown.tempOffset;
+            if (currentHour > 20 || currentHour < 6) tempBase -= 3;
 
             const current = {
                 temp: Math.floor(tempBase + Math.random() * 4),
                 condition: (currentHour > 20 || currentHour < 6) ? 'night' : baseCondition,
-                humidity: Math.floor(50 + Math.random() * 40),
-                wind: Math.floor(8 + Math.random() * 20),
-                uv: (currentHour > 10 && currentHour < 16 && baseCondition === 'sunny') ? Math.floor(5 + Math.random() * 5) : 0,
-                precip: (baseCondition === 'rain' || baseCondition === 'storm') ? Math.floor(60 + Math.random() * 30) : Math.floor(Math.random() * 10),
-                pressure: 1010 + Math.floor(Math.random() * 20 - 10)
+                humidity: Math.floor(45 + Math.random() * 35),
+                wind: Math.floor(8 + Math.random() * 18),
+                uv: (currentHour > 10 && currentHour < 16 && baseCondition === 'sunny') ? Math.floor(4 + Math.random() * 6) : 0,
+                precip: (baseCondition === 'rain' || baseCondition === 'storm') ? Math.floor(50 + Math.random() * 40) : Math.floor(Math.random() * 15),
+                pressure: 1010 + Math.floor(Math.random() * 25 - 12)
             };
 
             const hourly = [];
             for(let i=0; i<24; i++) {
                 let h = (currentHour + i) % 24;
                 let isNight = h > 20 || h < 6;
-                let t = tempBase + Math.sin((h - 6) / 18 * Math.PI) * 6;
+                let t = tempBase + Math.sin((h - 6) / 18 * Math.PI) * 5;
                 if(isNight) t -= 4;
                 
-                let icon = isNight ? 'night' : 'sunny';
-                if (Math.random() > 0.7) icon = 'cloudy';
-                if (Math.random() > 0.85) icon = 'rain';
+                let icon = isNight ? 'night' : currentTown.condition;
+                if (Math.random() > 0.8) icon = 'cloudy';
                 
                 hourly.push({
                     time: `${h.toString().padStart(2, '0')}:00`,
@@ -375,10 +498,10 @@
                 let d = new Date();
                 d.setDate(d.getDate() + i);
                 let dayName = i === 0 ? 'Today' : days[d.getDay()];
-                let high = Math.floor(18 + Math.random() * 12);
-                let low = high - Math.floor(6 + Math.random() * 6);
-                let cond = conditions[Math.floor(Math.random() * conditions.length)];
-                if (cond === 'night') cond = 'cloudy';
+                let high = Math.floor(20 + currentTown.tempOffset + Math.random() * 10);
+                let low = high - Math.floor(6 + Math.random() * 5);
+                let conds = ['sunny', 'cloudy', 'rain', 'cloudy', 'sunny'];
+                let cond = conds[Math.floor(Math.random() * conds.length)];
                 
                 daily.push({
                     day: dayName,
@@ -392,7 +515,6 @@
         }
 
         // --- Rendering Logic ---
-
         function updateTheme(condition) {
             appBody.classList.remove('bg-clear-night', 'bg-cloudy-night', 'bg-storm', 'bg-clear-day');
             
@@ -413,6 +535,7 @@
 
             document.getElementById('current-temp').textContent = `${data.current.temp}°`;
             document.getElementById('weather-desc').textContent = data.current.condition.replace('-', ' ');
+            // Static main weather icon
             document.getElementById('weather-icon-container').innerHTML = icons[data.current.condition] || icons.sunny;
             document.getElementById('wind-speed').textContent = data.current.wind;
             document.getElementById('humidity').textContent = data.current.humidity;
@@ -421,18 +544,15 @@
             document.getElementById('pressure').textContent = data.current.pressure;
             document.getElementById('precip-chance').textContent = `${data.current.precip}%`;
 
-            // UV status color
             const uvEl = document.getElementById('uv-index').nextElementSibling;
             if (data.current.uv <= 2) uvEl.className = 'text-xs text-emerald-400';
             else if (data.current.uv <= 5) uvEl.className = 'text-xs text-yellow-400';
             else if (data.current.uv <= 7) uvEl.className = 'text-xs text-orange-400';
             else uvEl.className = 'text-xs text-red-400';
 
-            // Precip status
             const precipEl = document.getElementById('precip-chance').nextElementSibling;
             precipEl.textContent = data.current.precip > 50 ? 'Wet' : data.current.precip > 20 ? 'Possible' : 'Dry';
 
-            // Hourly
             const hourlyContainer = document.getElementById('hourly-container');
             hourlyContainer.innerHTML = '';
             data.hourly.forEach(h => {
@@ -440,13 +560,13 @@
                 el.className = 'glass-card rounded-2xl p-4 min-w-[85px] flex flex-col items-center justify-between snap-center cursor-pointer';
                 el.innerHTML = `
                     <span class="text-xs text-slate-400 font-medium">${h.time}</span>
+                    <!-- Static icon -->
                     <div class="w-10 h-10 my-3">${icons[h.icon]}</div>
                     <span class="font-bold text-white text-lg">${h.temp}°</span>
                 `;
                 hourlyContainer.appendChild(el);
             });
 
-            // Daily
             const dailyContainer = document.getElementById('daily-forecast');
             dailyContainer.innerHTML = '';
             data.daily.forEach((d, index) => {
@@ -455,6 +575,7 @@
                 
                 el.innerHTML = `
                     <div class="w-20 font-medium text-slate-300">${d.day}</div>
+                    <!-- Static icon -->
                     <div class="w-10 h-10 flex-shrink-0">${icons[d.condition]}</div>
                     <div class="flex-grow mx-6 flex items-center gap-3">
                         <span class="text-sm w-8 text-right text-slate-500">${d.low}°</span>
@@ -468,7 +589,6 @@
                 dailyContainer.appendChild(el);
             });
 
-            // Sun Chart
             const sunChart = document.getElementById('sun-chart');
             sunChart.innerHTML = '';
             const currentH = new Date().getHours();
@@ -491,7 +611,9 @@
             container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
         }
 
+        // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
+            renderTowns();
             render();
             
             setInterval(() => {
