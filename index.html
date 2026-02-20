@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>KOSH Local Weather | Presented by MioConnect</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+   <style>
+       body {
+           font-family: 'Outfit', sans-serif;
+           overflow-x: hidden;
+           background-color: #0f172a;
+           color: white;
+       }
+
+       /* Dynamic Backgrounds */
+       .bg-sunny { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+       .bg-cloudy { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); }
+       .bg-rainy { background: linear-gradient(135deg, #3a6186 0%, #89253e 100%); } /* Moody storm */
+       .bg-night { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); }
+
+       /* Glassmorphism */
+       .glass-panel {
+           background: rgba(255, 255, 255, 0.1);
+           backdrop-filter: blur(12px);
+           -webkit-backdrop-filter: blur(12px);
+           border: 1px solid rgba(255, 255, 255, 0.2);
+           box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+       }
+
+       .glass-card {
+           background: rgba(255, 255, 255, 0.15);
+           backdrop-filter: blur(8px);
+           border: 1px solid rgba(255, 255, 255, 0.1);
+           transition: transform 0.3s ease, background 0.3s ease;
+       }
+       .glass-card:hover {
+           background: rgba(255, 255, 255, 0.25);
+           transform: translateY(-5px);
+       }
+
+       /* Logo Animation */
+       .sun-logo {
+           display: inline-block;
+           animation: spin 20s linear infinite;
+           color: #fbbf24; /* Amber-400 */
+           filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+       }
+       @keyframes spin { 100% { transform: rotate(360deg); } }
+
+       /* Weather Animations */
+       @keyframes float {
+           0% { transform: translateY(0px); }
+           50% { transform: translateY(-10px); }
+           100% { transform: translateY(0px); }
+       }
+       .animate-float { animation: float 4s ease-in-out infinite; }
+
+       @keyframes pulse-glow {
+           0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
+           50% { opacity: 0.8; filter: drop-shadow(0 0 15px rgba(255,255,255,0.8)); }
+       }
+       .animate-pulse-glow { animation: pulse-glow 3s infinite; }
+
+       /* Custom Scrollbar */
+       ::-webkit-scrollbar { width: 6px; height: 6px; }
+       ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+       ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+       ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+
+       /* Chart Bars */
+       .temp-bar {
+           transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+       }
+   </style>
+</head>
+<body class="min-h-screen flex flex-col relative transition-all duration-1000 ease-in-out" id="app-body">
+
+   <!-- Background Elements -->
+   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+       <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl animate-float"></div>
+       <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl animate-float" style="animation-delay: 2s;"></div>
+   </div>
+
+   <!-- Header -->
+   <header class="relative z-10 w-full p-6 flex justify-between items-center glass-panel border-b-0 rounded-b-3xl mx-auto max-w-7xl mt-0 md:mt-4 md:rounded-2xl">
+       <div class="flex items-center gap-3">
+           <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold text-xl shadow-inner">K</div>
+           <div>
+               <h1 class="text-2xl font-bold tracking-tight">KOSH <span class="font-light opacity-80">Local Weather</span></h1>
+               <p class="text-xs text-white/60 uppercase tracking-widest">North West Region</p>
+           </div>
+       </div>
+       
+       <!-- MioConnect Logo -->
+       <div class="flex items-center gap-2 bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
+           <span class="text-sm font-semibold tracking-wide">Presented by</span>
+           <div class="text-xl font-bold flex items-center">
+               Mi<span class="sun-logo text-2xl mx-[1px]">
+                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                       <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
+                   </svg>
+               </span>Connect
+           </div>
+       </div>
+   </header>
+
+   <!-- Main Content -->
+   <main class="relative z-10 flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+       
+       <!-- Left Column: Current Weather -->
+       <section class="lg:col-span-1 flex flex-col gap-6">
+           <!-- Main Card -->
+           <div class="glass-panel rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden group">
+               <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+               
+               <div class="mb-2 px-3 py-1 rounded-full bg-white/10 text-xs font-medium uppercase tracking-wider" id="current-date">Loading...</div>
+               
+               <div class="my-6 relative">
+                   <!-- Dynamic Icon Container -->
+                   <div id="weather-icon-container" class="w-40 h-40 animate-float drop-shadow-2xl">
+                       <!-- SVG Injected via JS -->
+                   </div>
+               </div>
+
+               <div class="relative z-10">
+                   <h2 class="text-8xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60" id="current-temp">--°</h2>
+                   <p class="text-2xl font-medium mt-2 capitalize" id="weather-desc">Loading Data...</p>
+               </div>
+
+               <div class="grid grid-cols-2 gap-4 w-full mt-8 pt-8 border-t border-white/10">
+                   <div class="text-center">
+                       <p class="text-white/50 text-xs uppercase mb-1">Wind</p>
+                       <p class="text-xl font-semibold"><span id="wind-speed">--</span> <span class="text-sm font-normal">km/h</span></p>
+                   </div>
+                   <div class="text-center">
+                       <p class="text-white/50 text-xs uppercase mb-1">Humidity</p>
+                       <p class="text-xl font-semibold"><span id="humidity">--</span> <span class="text-sm font-normal">%</span></p>
+                   </div>
+               </div>
+           </div>
+
+           <!-- Sun/Moon Cycle -->
+           <div class="glass-panel rounded-3xl p-6">
+               <h3 class="text-sm font-semibold uppercase tracking-wider opacity-70 mb-4">Daylight</h3>
+               <div class="flex justify-between items-end h-24 gap-2" id="sun-chart">
+                   <!-- Bars generated by JS -->
+               </div>
+               <div class="flex justify-between text-xs mt-2 opacity-60">
+                   <span>Sunrise: <span id="sunrise-time">06:12</span></span>
+                   <span>Sunset: <span id="sunset-time">18:45</span></span>
+               </div>
+           </div>
+       </section>
+
+       <!-- Right Column: Forecast & Details -->
+       <section class="lg:col-span-2 flex flex-col gap-6">
+           
+           <!-- Hourly Forecast -->
+           <div class="glass-panel rounded-3xl p-6 overflow-hidden">
+               <div class="flex justify-between items-center mb-6">
+                   <h3 class="text-lg font-bold">Hourly Forecast</h3>
+                   <div class="flex gap-2">
+                       <button class="p-2 rounded-full hover:bg-white/10 transition" onclick="scrollHourly('left')">❮</button>
+                       <button class="p-2 rounded-full hover:bg-white/10 transition" onclick="scrollHourly('right')">❯</button>
+                   </div>
+               </div>
+               
+               <div class="flex overflow-x-auto gap-4 pb-4 snap-x" id="hourly-container">
+                   <!-- Hourly items injected via JS -->
+               </div>
+           </div>
+
+           <!-- 7 Day Forecast -->
+           <div class="glass-panel rounded-3xl p-6 flex-grow">
+               <h3 class="text-lg font-bold mb-6">7-Day Outlook</h3>
+               <div class="flex flex-col gap-3" id="daily-forecast">
+                   <!-- Daily rows injected via JS -->
+               </div>
+           </div>
+
+           <!-- Extra Details Grid -->
+           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+               <div class="glass-card rounded-2xl p-4 flex flex-col justify-between h-32">
+                   <div class="text-white/50 text-xs uppercase">UV Index</div>
+                   <div class="text-3xl font-bold" id="uv-index">4</div>
+                   <div class="text-xs text-green-300">Moderate</div>
+               </div>
+               <div class="glass-card rounded-2xl p-4 flex flex-col justify-between h-32">
+                   <div class="text-white/50 text-xs uppercase">Visibility</div>
+                   <div class="text-3xl font-bold">10 <span class="text-sm font-normal">km</span></div>
+                   <div class="text-xs text-white/70">Clear view</div>
+               </div>
+               <div class="glass-card rounded-2xl p-4 flex flex-col justify-between h-32">
+                   <div class="text-white/50 text-xs uppercase">Pressure</div>
+                   <div class="text-3xl font-bold" id="pressure">1012</div>
+                   <div class="text-xs text-white/70">hPa</div>
+               </div>
+               <div class="glass-card rounded-2xl p-4 flex flex-col justify-between h-32">
+                   <div class="text-white/50 text-xs uppercase">Precipitation</div>
+                   <div class="text-3xl font-bold" id="precip-chance">0%</div>
+                   <div class="text-xs text-white/70">Dry</div>
+               </div>
+           </div>
+
+       </section>
+   </main>
+
+   <footer class="relative z-10 p-6 text-center text-white/30 text-sm">
+       <p>&copy; 2026 KOSH Weather Station. Data simulated for demonstration.</p>
+   </footer>
+
+   <script>
+       // --- Configuration & State ---
+       const appBody = document.getElementById('app-body');
+       let currentTheme = 'bg-sunny';
+
+       // --- SVG Icons ---
+       const icons = {
+           sunny: `<svg viewBox="0 0 64 64" class="w-full h-full text-yellow-300"><circle cx="32" cy="32" r="14" fill="currentColor" class="animate-pulse-glow"/><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" d="M32 8V2m0 60v-6m24-24h6M2 32h6m4.24-19.76l4.24-4.24m33.94 33.94l4.24-4.24M12.24 51.76l4.24 4.24m33.94-33.94l4.24 4.24" class="animate-[spin_10s_linear_infinite]"/></svg>`,
+           cloudy: `<svg viewBox="0 0 64 64" class="w-full h-full text-gray-200"><path fill="currentColor" d="M46 46a10 10 0 1 0-8-18 14 14 0 1 0-26 6h34z" class="animate-float"/></svg>`,
+           rain: `<svg viewBox="0 0 64 64" class="w-full h-full text-blue-300"><path fill="gray" d="M46 40a10 10 0 1 0-8-18 14 14 0 1 0-26 6h34z"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M24 46l-4 8m12-8l-4 8m12-8l-4 8" class="animate-pulse"/></svg>`,
+           storm: `<svg viewBox="0 0 64 64" class="w-full h-full text-purple-300"><path fill="gray" d="M46 40a10 10 0 1 0-8-18 14 14 0 1 0-26 6h34z"/><path fill="yellow" d="M30 44l-6 8h6l-2 8 10-10h-6l4-6z" class="animate-pulse"/></svg>`,
+           night: `<svg viewBox="0 0 64 64" class="w-full h-full text-yellow-100"><path fill="currentColor" d="M36 14a16 16 0 1 1-20 20 12 12 0 0 0 20-20z" class="animate-float"/></svg>`
+       };
+
+       // --- Data Simulation ---
+       // Simulating a realistic weather pattern for "Kosh"
+       function generateWeatherData() {
+           const now = new Date();
+           const currentHour = now.getHours();
+           
+           // Determine base condition based on randomness but consistent for the session
+           const conditions = ['sunny', 'cloudy', 'rain', 'sunny', 'cloudy'];
+           const baseCondition = conditions[Math.floor(Math.random() * conditions.length)];
+           
+           let tempBase = 22; // Celsius
+           if (baseCondition === 'rain') tempBase = 18;
+           if (currentHour > 20 || currentHour < 6) tempBase -= 5;
+
+           // Current Stats
+           const current = {
+               temp: Math.floor(tempBase + Math.random() * 3),
+               condition: (currentHour > 20 || currentHour < 5) ? 'night' : baseCondition,
+               humidity: Math.floor(40 + Math.random() * 40),
+               wind: Math.floor(5 + Math.random() * 15),
+               uv: (currentHour > 10 && currentHour < 16 && baseCondition === 'sunny') ? Math.floor(6 + Math.random() * 4) : 0,
+               precip: baseCondition === 'rain' ? 80 : 0,
+               pressure: 1012 + Math.floor(Math.random() * 10 - 5)
+           };
+
+           // Hourly Forecast (Next 24h)
+           const hourly = [];
+           for(let i=0; i<24; i++) {
+               let h = (currentHour + i) % 24;
+               let isNight = h > 20 || h < 6;
+               let t = tempBase + Math.sin((h - 6) / 18 * Math.PI) * 5; // Day curve
+               if(isNight) t -= 3;
+               
+               hourly.push({
+                   time: `${h}:00`,
+                   temp: Math.floor(t),
+                   icon: isNight ? 'night' : (Math.random() > 0.7 ? 'cloudy' : 'sunny')
+               });
+           }
+
+           // Daily Forecast
+           const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+           const daily = [];
+           for(let i=0; i<7; i++) {
+               let d = new Date();
+               d.setDate(d.getDate() + i);
+               let dayName = i === 0 ? 'Today' : days[d.getDay()];
+               let high = Math.floor(20 + Math.random() * 10);
+               let low = high - Math.floor(5 + Math.random() * 5);
+               let cond = conditions[Math.floor(Math.random() * conditions.length)];
+               
+               daily.push({
+                   day: dayName,
+                   high: high,
+                   low: low,
+                   condition: cond
+               });
+           }
+
+           return { current, hourly, daily };
+       }
+
+       // --- Rendering Logic ---
+
+       function updateTheme(condition) {
+           appBody.classList.remove('bg-sunny', 'bg-cloudy', 'bg-rainy', 'bg-night');
+           
+           if (condition === 'night') appBody.classList.add('bg-night');
+           else if (condition === 'rain' || condition === 'storm') appBody.classList.add('bg-rainy');
+           else if (condition === 'cloudy') appBody.classList.add('bg-cloudy');
+           else appBody.classList.add('bg-sunny');
+       }
+
+       function render() {
+           const data = generateWeatherData();
+           
+           // 1. Update Theme
+           updateTheme(data.current.condition);
+
+           // 2. Update Header Date
+           const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+           document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', dateOptions);
+
+           // 3. Update Main Card
+           document.getElementById('current-temp').textContent = `${data.current.temp}°`;
+           document.getElementById('weather-desc').textContent = data.current.condition;
+           document.getElementById('weather-icon-container').innerHTML = icons[data.current.condition] || icons.sunny;
+           document.getElementById('wind-speed').textContent = data.current.wind;
+           document.getElementById('humidity').textContent = data.current.humidity;
+           
+           // 4. Update Details
+           document.getElementById('uv-index').textContent = data.current.uv;
+           document.getElementById('pressure').textContent = data.current.pressure;
+           document.getElementById('precip-chance').textContent = `${data.current.precip}%`;
+
+           // 5. Render Hourly
+           const hourlyContainer = document.getElementById('hourly-container');
+           hourlyContainer.innerHTML = '';
+           data.hourly.forEach(h => {
+               const el = document.createElement('div');
+               el.className = 'glass-card rounded-2xl p-4 min-w-[80px] flex flex-col items-center justify-between snap-center';
+               el.innerHTML = `
+                   <span class="text-xs opacity-70">${h.time}</span>
+                   <div class="w-8 h-8 my-2">${icons[h.icon]}</div>
+                   <span class="font-bold">${h.temp}°</span>
+               `;
+               hourlyContainer.appendChild(el);
+           });
+
+           // 6. Render Daily
+           const dailyContainer = document.getElementById('daily-forecast');
+           dailyContainer.innerHTML = '';
+           data.daily.forEach((d, index) => {
+               const el = document.createElement('div');
+               el.className = 'flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition cursor-default group';
+               
+               // Simple bar visualization for temp range
+               const range = 40; // max expected range
+               const leftPos = (d.low / range) * 100; 
+               const width = ((d.high - d.low) / range) * 100;
+
+               el.innerHTML = `
+                   <div class="w-16 font-medium">${d.day}</div>
+                   <div class="w-8 h-8">${icons[d.condition]}</div>
+                   <div class="flex-grow mx-4 flex items-center gap-2">
+                       <span class="text-sm w-8 text-right opacity-70">${d.low}°</span>
+                       <div class="flex-grow h-1.5 bg-white/10 rounded-full relative overflow-hidden">
+                           <div class="absolute h-full bg-white/60 rounded-full" style="left: ${20 + (d.low/2)}%; width: ${(d.high-d.low)*1.5}%"></div>
+                       </div>
+                       <span class="text-sm w-8 font-bold">${d.high}°</span>
+                   </div>
+               `;
+               dailyContainer.appendChild(el);
+           });
+
+           // 7. Render Sun Chart (Simulated Arc)
+           const sunChart = document.getElementById('sun-chart');
+           sunChart.innerHTML = '';
+           for(let i=0; i<12; i++) {
+               const h = 6 + i; // 6am to 6pm
+               // Simulate sun height curve (parabola)
+               const heightPct = 100 - Math.pow((i - 6), 2) * 2; 
+               const actualHeight = Math.max(10, heightPct);
+               
+               const bar = document.createElement('div');
+               bar.className = 'w-full bg-white/20 rounded-t-sm relative group';
+               bar.style.height = `${actualHeight}%`;
+               
+               // Add tooltip logic via title
+               bar.title = `${h}:00`;
+               
+               // Highlight current hour if applicable
+               if (new Date().getHours() === h) {
+                   bar.classList.add('bg-yellow-400', 'shadow-[0_0_10px_rgba(250,204,21,0.8)]');
+               }
+
+               sunChart.appendChild(bar);
+           }
+       }
+
+       // --- Interactions ---
+
+       function scrollHourly(direction) {
+           const container = document.getElementById('hourly-container');
+           const scrollAmount = 200;
+           if (direction === 'left') container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+           else container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+       }
+
+       // --- Init ---
+       document.addEventListener('DOMContentLoaded', () => {
+           render();
+           
+           // Simulate live time update
+           setInterval(() => {
+               // In a real app, this would fetch new data. 
+               // Here we just update the clock if we had one displayed seconds by seconds.
+               // For this UI, minute updates are sufficient, handled by browser cache usually,
+               // but let's force a re-render of the "Current" section occasionally to simulate live feel
+               if(new Date().getSeconds() === 0) {
+                   // subtle temp fluctuation
+                   const currentTempEl = document.getElementById('current-temp');
+                   let current = parseInt(currentTempEl.textContent);
+                   currentTempEl.textContent = (current + (Math.random() > 0.5 ? 1 : -1)) + '°';
+               }
+           }, 1000);
+       });
+
+   </script>
+</body>
+</html>
